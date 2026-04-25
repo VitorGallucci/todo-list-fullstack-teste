@@ -73,7 +73,7 @@ export const updateTodo = async (req: authRequest, res: Response): Promise<void>
     const todo = await Todo.findOneAndUpdate(
       { _id: id, usuarioId: req.usuarioId },
       { concluida },
-      { new: true } 
+      { returnDocument: 'after' }
     );
 
     // Se a tarefa não for encontrada ou não pertencer ao usuário, retorna um erro
