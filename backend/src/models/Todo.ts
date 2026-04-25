@@ -16,6 +16,9 @@ const todoSchema = new mongoose.Schema({
         required: true
     },
     dataCriacao: {
+        // Nota de Arquitetura: 
+        // As datas (createdAt/updatedAt) são mantidas em UTC no banco de dados por padrão
+        // A formatação para o fuso horário local do usuário é responsabilidade do frontend
         type: Date,
         default: Date.now // Define a data de criação da tarefa para a data atual
     }

@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 
 import authRoutes from "./routes/authRoutes.js";
+import todoRoutes from "./routes/todoRoutes.js";
 
 // Inicia as variáveis de ambiente
 dotenv.config();
@@ -19,10 +20,11 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Define as rotas de autenticação
-app.use("/api/auth", authRoutes);
 
-// Rota de teste
+app.use("/api/auth", authRoutes); // Define as rotas de autenticação
+app.use("/api/todos", todoRoutes); // Define as rotas de tarefas
+
+// Rota para teste
 app.get('/', (req, res) => {
   res.send('API Todo List rodando!');
 });
