@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Define o esquema da tarefa
 const todoSchema = new mongoose.Schema({
     titulo: {
         type: String,
@@ -7,7 +8,7 @@ const todoSchema = new mongoose.Schema({
     },
     concluida: {
         type: Boolean, 
-        default: false
+        default: false // Por padrão, a tarefa não está concluída
     },
     usuarioId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -16,10 +17,11 @@ const todoSchema = new mongoose.Schema({
     },
     dataCriacao: {
         type: Date,
-        default: Date.now
+        default: Date.now // Define a data de criação da tarefa para a data atual
     }
 });
 
+// Configura o esquema para incluir um campo virtual "id" e convertê-lo para JSON
 todoSchema.set('toJSON', {
     virtuals: true,
     transform: (doc, ret: Record<string, any>) => {
@@ -28,3 +30,6 @@ todoSchema.set('toJSON', {
         delete ret.__v;
     }
 });
+
+// Exporta o modelo "Todo"
+export const Todo = mongoose.model('Todo', todoSchema);
