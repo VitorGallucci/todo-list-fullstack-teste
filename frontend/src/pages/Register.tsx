@@ -13,6 +13,12 @@ export function Register() {
 	
 	const navigate = useNavigate();
 
+	// Regex para validar se o formato do e-mail é realmente válido (ex: teste@teste.com)
+	const validarEmail = (emailParaTestar: string) => {
+		const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return regex.test(emailParaTestar);
+	};
+
 	const handleRegister = async (e: React.FormEvent) => {
 		e.preventDefault();
 		
@@ -21,6 +27,13 @@ export function Register() {
 		
 		setErro("");
 
+		// 1. Validação de E-mail UX
+		if (!validarEmail(email)) {
+			setErro("Por favor, insira um endereço de e-mail válido.");
+			return;
+		}
+
+		// 2. Validação de Senhas
 		if (senha !== confirmarSenha) {
 			setErro("As senhas não coincidem.");
 			return;
@@ -34,19 +47,19 @@ export function Register() {
 		setLoading(true);
 
 		try {
-			// 1. Cria a conta no backend
+			// Cria a conta no backend
 			await api.post("/auth/register", { email, senha });
 			
-			// 2. Faz o login automaticamente com os mesmos dados
+			// Faz o login automaticamente com os mesmos dados
 			const loginResponse = await api.post("/auth/login", { email, senha });
 			
-			// 3. Salva o Token e os dados no navegador
+			// Salva o Token e os dados no navegador
 			localStorage.setItem("@TodoList:token", loginResponse.data.token);
 			localStorage.setItem("@TodoList:user", JSON.stringify(loginResponse.data.usuario));
 
 			setSucesso(true);
 			
-			// 4. Redireciona direto para o Dashboard após um breve momento
+			// Redireciona direto para o Dashboard após um breve momento
 			setTimeout(() => {
 				navigate("/dashboard");
 			}, 1500);
@@ -79,6 +92,7 @@ export function Register() {
 					<p className="text-gray-500 mt-2">Comece a organizar suas tarefas hoje mesmo.</p>
 				</div>
 
+				{/* Alerta de Erro */}
 				{erro && (
 					<div className="bg-red-50 text-red-600 p-3 rounded-lg flex items-center gap-2 mb-6 text-sm transition-all border border-red-100">
 						<AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -86,7 +100,7 @@ export function Register() {
 					</div>
 				)}
 
-				{/* Mensagem atualizada para refletir o auto-login */}
+				{/* Alerta de Sucesso (Auto-login) */}
 				{sucesso && (
 					<div className="bg-green-50 text-green-700 p-3 rounded-lg flex items-center gap-2 mb-6 text-sm transition-all border border-green-100">
 						<CheckCircle2 className="w-5 h-5 flex-shrink-0" />
@@ -94,7 +108,8 @@ export function Register() {
 					</div>
 				)}
 
-				<form onSubmit={handleRegister} className="space-y-5">
+				<form onSubmit={handleRegister} className="space-y-5" noValidate>
+					{/* Campo de E-mail */}
 					<div>
 						<label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
 						<div className="relative">
@@ -113,6 +128,7 @@ export function Register() {
 						</div>
 					</div>
 
+					{/* Campo de Senha */}
 					<div>
 						<label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
 						<div className="relative">
@@ -131,8 +147,11 @@ export function Register() {
 						</div>
 					</div>
 
+					{/* Campo de Confirmar Senha */}
 					<div>
 						<label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
+						
+						{/* Container Relative isolado APENAS para o Input e o Ícone */}
 						<div className="relative">
 							<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 								<Lock className="h-5 w-5 text-gray-400" />
@@ -147,6 +166,17 @@ export function Register() {
 								placeholder="••••••••"
 							/>
 						</div>
+
+						{/* O Feedback visual agora fica fora do container 'relative' para não quebrar o alinhamento */}
+						{confirmarSenha.length > 0 && (
+							<p className={`text-sm mt-2 flex items-center gap-1 transition-colors ${senha === confirmarSenha ? 'text-green-600' : 'text-red-500'}`}>
+								{senha === confirmarSenha ? (
+									<><CheckCircle2 className="w-4 h-4" /> Senhas coincidem</>
+								) : (
+									<><AlertCircle className="w-4 h-4" /> As senhas não estão iguais</>
+								)}
+							</p>
+						)}
 					</div>
 
 					<button
