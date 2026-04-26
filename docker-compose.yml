@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    # Mapeia a porta 5000 do PC para a porta 5000 do contêiner
+    ports:
+      - "5000:5000"
+    # Alimenta o backend com as variáveis de ambiente
+    env_file:
+      - ./backend/.env.example
+    environment:
+      - NODE_ENV=production
+
+  frontend:
+    build: ./frontend
+    # Mapeia a porta 80 do PC para o Nginx
+    ports:
+      - "80:80"
+    # Garante que o frontend só inicie depois do backend estar rodando
+    depends_on:
+      - backend
