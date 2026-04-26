@@ -7,7 +7,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Se a pessoa acessar a raiz do site, mandamos ela pro login */}
+        {/* Acesso a raiz do site redireciona automaticamente para o login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         
         <Route path="/login" element={<Login />} />

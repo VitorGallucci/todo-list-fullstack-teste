@@ -10,7 +10,7 @@ export const register = async (req: Request, res: Response): Promise <void> => {
         const { email, senha } = req.body;
 
         // Verifica se o usuário já existe, caso exista, retorna um erro
-        const userExists = await User.findOne({ email});
+        const userExists = await User.findOne({ email });
         if (userExists) {
             res.status(400).json({ erro: "Usuário já existe ou o e-mail já está em uso" });
             return;
