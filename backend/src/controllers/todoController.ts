@@ -1,116 +1,133 @@
 import type { Response } from "express";
 import type { authRequest } from "../middlewares/authMiddleware.js";
 import { Todo } from "../models/Todo.js";
+import { createTodoSchema, updateTodoSchema } from "../schemas/todoSchema.js";
 
 // Função para criar uma nova tarefa
 export const createTodo = async (req: authRequest, res: Response): Promise<void> => {
-    try {
-        const { titulo } = req.body; // Extrai o título do corpo da requisição
-        
-        // Verifica se o usuário está autenticado, caso contrário, retorna um erro
-        if (!req.usuarioId) {
-            res.status(401).json({ erro: "Usuário não autenticado" });
-            return;
-        }
-        
-        // Valida o título da tarefa, caso seja inválido, retorna um erro
-        if (!titulo || typeof titulo !== "string") {
-            res.status(400).json({ erro: "Título é obrigatório e deve ser um texto" });
-            return;
-        }
-        
-        // Cria a tarefa associada ao usuário autenticado
-        const todo = await Todo.create({
-            titulo,
-            usuarioId: req.usuarioId
-        });
+	try {
+		// Valida o corpo da requisição
+		const validacao = createTodoSchema.safeParse(req.body);
 
-        res.status(201).json(todo); // Retorna a tarefa criada
-    } catch (error) {
-        // Em caso de erro, retorna uma resposta de erro
-        res.status(500).json({ erro: "Erro ao criar tarefa" });
-    }
+		if (!validacao.success) {
+			const mensagem = validacao.error.issues?.[0]?.message ?? "Dados inválidos";
+			res.status(400).json({ erro: mensagem });
+			return;
+		}
+
+		// Extrai o título dos dados validados
+		const { titulo } = validacao.data;
+
+		// Verifica se o usuário está autenticado
+		if (!req.usuarioId) {
+			res.status(401).json({ erro: "Usuário não autenticado" });
+			return;
+		}
+
+		// Cria a tarefa associada ao usuário autenticado
+		const todo = await Todo.create({
+			titulo,
+			usuarioId: req.usuarioId
+		});
+
+		// Retorna a tarefa criada com status 201
+		res.status(201).json(todo);
+	} catch (error) {
+		// Retorna um erro genérico em caso de falha
+		res.status(500).json({ erro: "Erro ao criar tarefa" });
+	}
 };
 
 // Função para buscar as tarefas do usuário autenticado
 export const getTodos = async (req: authRequest, res: Response): Promise<void> => {
-  try {
-    // Verifica se o usuário está autenticado, caso contrário, retorna um erro
-    if (!req.usuarioId) {
-      res.status(401).json({ erro: "Usuário não autenticado" });
-      return;
-    }
+	try {
+		// Verifica se o usuário está autenticado
+		if (!req.usuarioId) {
+			res.status(401).json({ erro: "Usuário não autenticado" });
+			return;
+		}
 
-    // Busca as tarefas do usuário autenticado, ordenando da mais recente para a mais antiga
-    const todos = await Todo.find({ usuarioId: req.usuarioId }).sort({ dataCriacao: -1 }); 
-    
-    res.status(200).json(todos); // Retorna as tarefas encontradas
-  } catch (error) {
-    // Em caso de erro, retorna uma resposta de erro
-    res.status(500).json({ erro: "Erro ao buscar tarefas" });
-  }
+		// Busca as tarefas do usuário, ordenadas por data de criação decrescente
+		const todos = await Todo.find({ usuarioId: req.usuarioId }).sort({ dataCriacao: -1 });
+		
+		// Retorna a lista de tarefas encontradas
+		res.status(200).json(todos);
+	} catch (error) {
+		// Retorna um erro genérico em caso de falha
+		res.status(500).json({ erro: "Erro ao buscar tarefas" });
+	}
 };
 
 // Função para atualizar o status de conclusão de uma tarefa
 export const updateTodo = async (req: authRequest, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params; // Extrai o ID da tarefa dos parâmetros da rota
-    const { concluida } = req.body; // Extrai o status de conclusão do corpo da requisição
+	try {
+		// Extrai o ID da tarefa dos parâmetros da URL
+		const { id } = req.params;
 
-    // Verifica se o usuário está autenticado, caso contrário, retorna um erro
-    if (!req.usuarioId) {
-      res.status(401).json({ erro: "Usuário não autenticado" });
-      return;
-    }
+		// Valida o status de conclusão com Zod
+		const validacao = updateTodoSchema.safeParse(req.body);
 
-    // Valida o status de conclusão, caso seja inválido, retorna um erro
-    if (typeof concluida !== 'boolean') {
-      res.status(400).json({ erro: "O status 'concluida' é obrigatório e deve ser um booleano" });
-      return;
-    }
+		if (!validacao.success) {
+			const mensagem = validacao.error.issues?.[0]?.message ?? "Dados inválidos";
+			res.status(400).json({ erro: mensagem });
+			return;
+		}
 
-    // Procura a tarefa pelo ID e garante que ela pertence ao usuário logado
-    const todo = await Todo.findOneAndUpdate(
-      { _id: id, usuarioId: req.usuarioId },
-      { concluida },
-      { returnDocument: 'after' }
-    );
+		// Extrai o novo status de conclusão
+		const { concluida } = validacao.data;
 
-    // Se a tarefa não for encontrada ou não pertencer ao usuário, retorna um erro
-    if (!todo) {
-      res.status(404).json({ erro: "Tarefa não encontrada ou não pertence a este usuário" });
-      return;
-    }
+		// Verifica se o usuário está autenticado
+		if (!req.usuarioId) {
+			res.status(401).json({ erro: "Usuário não autenticado" });
+			return;
+		}
 
-    res.status(200).json(todo); // Retorna a tarefa atualizada
-  } catch (error) {
-    // Em caso de erro, retorna uma resposta de erro
-    res.status(500).json({ erro: "Erro ao atualizar tarefa" });
-  }
+		// Atualiza a tarefa se ela pertencer ao usuário
+		const todo = await Todo.findOneAndUpdate(
+			{ _id: id, usuarioId: req.usuarioId },
+			{ concluida },
+			{ returnDocument: 'after' }
+		);
+
+		// Verifica se a tarefa foi encontrada e atualizada
+		if (!todo) {
+			res.status(404).json({ erro: "Tarefa não encontrada ou não pertence a este usuário" });
+			return;
+		}
+
+		// Retorna a tarefa atualizada
+		res.status(200).json(todo);
+	} catch (error) {
+		// Retorna um erro genérico em caso de falha
+		res.status(500).json({ erro: "Erro ao atualizar tarefa" });
+	}
 };
 
 // Função para excluir uma tarefa
 export const deleteTodo = async (req: authRequest, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params; // Extrai o ID da tarefa dos parâmetros da rota
+	try {
+		// Extrai o ID da tarefa dos parâmetros da URL
+		const { id } = req.params;
 
-    // Verifica se o usuário está autenticado, caso contrário, retorna um erro
-    if (!req.usuarioId) {
-      res.status(401).json({ erro: "Usuário não autenticado" });
-      return;
-    }
+		// Verifica se o usuário está autenticado
+		if (!req.usuarioId) {
+			res.status(401).json({ erro: "Usuário não autenticado" });
+			return;
+		}
 
-    // Procura a tarefa pelo ID e garante que ela pertence ao usuário logado
-    const todo = await Todo.findOneAndDelete({ _id: id, usuarioId: req.usuarioId });
-    // Se a tarefa não for encontrada ou não pertencer ao usuário, retorna um erro
-    if (!todo) {
-      res.status(404).json({ erro: "Tarefa não encontrada ou não pertence a este usuário" });
-      return;
-    }
+		// Exclui a tarefa se ela pertencer ao usuário
+		const todo = await Todo.findOneAndDelete({ _id: id, usuarioId: req.usuarioId });
+		
+		// Verifica se a tarefa existia e foi removida
+		if (!todo) {
+			res.status(404).json({ erro: "Tarefa não encontrada ou não pertence a este usuário" });
+			return;
+		}
 
-    res.status(200).json({ mensagem: "Tarefa removida com sucesso" }); // Retorna uma mensagem de sucesso
-  } catch (error) {
-    // Em caso de erro, retorna uma resposta de erro
-    res.status(500).json({ erro: "Erro ao deletar tarefa" });
-  }
+		// Retorna mensagem de confirmação de exclusão
+		res.status(200).json({ mensagem: "Tarefa removida com sucesso" });
+	} catch (error) {
+		// Retorna um erro genérico em caso de falha
+		res.status(500).json({ erro: "Erro ao deletar tarefa" });
+	}
 };
