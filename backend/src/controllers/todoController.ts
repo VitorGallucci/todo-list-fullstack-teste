@@ -1,6 +1,7 @@
 import type { Response } from "express";
 import type { authRequest } from "../middlewares/authMiddleware.js";
 import { Todo } from "../models/Todo.js";
+import type { ObjectId } from 'mongoose';
 import { createTodoSchema, updateTodoSchema } from "../schemas/todoSchema.js";
 
 // Função para criar uma nova tarefa
@@ -58,13 +59,12 @@ export const getTodos = async (req: authRequest, res: Response): Promise<void> =
 	}
 };
 
-// Função para atualizar o status de conclusão de uma tarefa
+// Função para atualizar uma tarefa
 export const updateTodo = async (req: authRequest, res: Response): Promise<void> => {
 	try {
-		// Extrai o ID da tarefa dos parâmetros da URL
 		const { id } = req.params;
 
-		// Valida o status de conclusão com Zod
+		// Valida os dados (agora aceita titulo e/ou concluida)
 		const validacao = updateTodoSchema.safeParse(req.body);
 
 		if (!validacao.success) {
@@ -73,32 +73,35 @@ export const updateTodo = async (req: authRequest, res: Response): Promise<void>
 			return;
 		}
 
-		// Extrai o novo status de conclusão
-		const { concluida } = validacao.data;
-
-		// Verifica se o usuário está autenticado
 		if (!req.usuarioId) {
 			res.status(401).json({ erro: "Usuário não autenticado" });
 			return;
 		}
 
-		// Atualiza a tarefa se ela pertencer ao usuário
-		const todo = await Todo.findOneAndUpdate(
-			{ _id: id, usuarioId: req.usuarioId },
-			{ concluida },
-			{ returnDocument: 'after' }
-		);
-
-		// Verifica se a tarefa foi encontrada e atualizada
-		if (!todo) {
-			res.status(404).json({ erro: "Tarefa não encontrada ou não pertence a este usuário" });
+		// Busca a tarefa para verificar se está concluída antes de permitir editar o título
+		const tarefaExistente = await Todo.findOne({ _id: id, usuarioId: req.usuarioId });
+		
+		if (!tarefaExistente) {
+			res.status(404).json({ erro: "Tarefa não encontrada" });
 			return;
 		}
 
-		// Retorna a tarefa atualizada
+		// Regra de negócio: Não permite editar o título de tarefas já concluídas
+		if (req.body.titulo && tarefaExistente.concluida) {
+			res.status(400).json({ erro: "Não é permitido editar o título de uma tarefa concluída" });
+			return;
+		}
+
+		// Atualiza a tarefa com os campos validados
+		const todo = await Todo.findOneAndUpdate(
+			{ _id: id, usuarioId: req.usuarioId },
+			validacao.data,
+			{ returnDocument: 'after' }
+		);
+
 		res.status(200).json(todo);
 	} catch (error) {
-		// Retorna um erro genérico em caso de falha
+		console.error("Erro no updateTodo:", error); // Log para debug no servidor
 		res.status(500).json({ erro: "Erro ao atualizar tarefa" });
 	}
 };

@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Cria uma instância do Axios com a URL base da API
 export const api = axios.create({
-    baseURL: "http://localhost:5000/api",
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
 
 // Intercepta as requisições para adicionar o token de autenticação, se disponível

@@ -12,7 +12,11 @@ dotenv.config();
 const app = express();
 
 // Permite o uso de CORS e o parsing de JSON nas requisições
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 
 app.use("/api/auth", authRoutes); // Define as rotas de autenticação

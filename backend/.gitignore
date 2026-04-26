@@ -1,0 +1,4 @@
+# Especifico do Node/Backend
+node_modules/
+dist/
+.env

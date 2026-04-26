@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const createTodoSchema = z.object({
-  titulo: z.string({ error: "Título deve ser um texto" })
-    .min(1, { message: "O título não pode estar vazio" }),
+	titulo: z.string().min(1, "O título é obrigatório")
 });
 
 export const updateTodoSchema = z.object({
-  concluida: z.boolean({ error: "O status deve ser um booleano" }),
+	titulo: z.string().min(1, "O título não pode ser vazio").optional(),
+	concluida: z.boolean().optional()
 });

@@ -88,6 +88,32 @@ describe("Testes de Integração - Módulo de Tarefas (Todo)", () => {
 			expect(res.body.concluida).toBe(true);
 		});
 
+		it("Deve atualizar o título de uma tarefa não concluída", async () => {
+			// Cria a tarefa inicial não concluída
+			const tarefa = await Todo.create({ titulo: "Título original", usuarioId, concluida: false });
+
+			const res = await request(app)
+				.put(`/api/todos/${tarefa._id}`)
+				.set("Authorization", `Bearer ${token}`)
+				.send({ titulo: "Título atualizado" });
+
+			expect(res.status).toBe(200);
+			expect(res.body.titulo).toBe("Título atualizado");
+		});
+
+		it("Não deve permitir a edição do título de uma tarefa concluída", async () => {
+			// Cria uma tarefa que já nasce concluída
+			const tarefa = await Todo.create({ titulo: "Tarefa finalizada", usuarioId, concluida: true });
+
+			const res = await request(app)
+				.put(`/api/todos/${tarefa._id}`)
+				.set("Authorization", `Bearer ${token}`)
+				.send({ titulo: "Tentativa de burlar a regra" });
+
+			expect(res.status).toBe(400); // Retorna erro de requisição inválida
+			expect(res.body.erro).toBe("Não é permitido editar o título de uma tarefa concluída");
+		});
+
 		it("Deve retornar 404 ao tentar atualizar uma tarefa que não existe ou é de outro usuário", async () => {
 			// Gera um ID aleatório que não corresponde a nenhuma tarefa existente
 			const idFalso = "65f1a5b6e4b0a1a2b3c4d5e6";

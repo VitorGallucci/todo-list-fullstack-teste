@@ -1,7 +1,7 @@
 // src/pages/Dashboard.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Plus, Trash2, CheckCircle2, Circle, Loader2, CheckSquare } from "lucide-react";
+import { LogOut, Plus, Trash2, CheckCircle2, Circle, Loader2, CheckSquare, Pencil } from "lucide-react";
 import { api } from "../services/api";
 
 interface Todo {
@@ -19,6 +19,10 @@ export function Dashboard() {
 	const [loading, setLoading] = useState(true);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [erroGlobal, setErroGlobal] = useState<string | null>(null);
+	
+	// Estados para edição de tarefa
+	const [editandoId, setEditandoId] = useState<string | null>(null);
+	const [valorEdicao, setValorEdicao] = useState("");
 	
 	const navigate = useNavigate();
 
@@ -68,6 +72,22 @@ export function Dashboard() {
 		}
 	};
 
+	const handleSalvarEdicao = async (id: string) => {
+		if (!valorEdicao.trim() || valorEdicao === todos.find(t => t.id === id)?.titulo) {
+			setEditandoId(null);
+			return;
+		}
+
+		try {
+			const response = await api.put(`/todos/${id}`, { titulo: valorEdicao });
+			setTodos(todos.map(todo => (todo.id === id ? response.data : todo)));
+			setEditandoId(null);
+		} catch (error) {
+			console.error("Erro ao editar tarefa", error);
+			setErroGlobal("Erro ao editar o título da tarefa.");
+		}
+	};
+
 	const handleDeletarTarefa = async (id: string) => {
 		try {
 			await api.delete(`/todos/${id}`);
@@ -84,7 +104,6 @@ export function Dashboard() {
 		navigate("/login");
 	};
 
-	// Helper para formatar a data de forma limpa
 	const formatarData = (dataIso?: string) => {
 		if (!dataIso) return "";
 		return new Date(dataIso).toLocaleDateString("pt-BR", {
@@ -98,12 +117,8 @@ export function Dashboard() {
 
 	return (
 		<div className="min-h-screen bg-gray-50 py-10 px-4">
-
 			<div className="max-w-3xl mx-auto">
-
-				{/* Cabeçalho Global (Navegação superior) */}
 				<header className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200">
-					{/* Marca / Logo */}
 					<div className="flex items-center gap-3">
 						<div className="bg-blue-600 p-2 rounded-xl shadow-sm border border-blue-500/20">
 							<CheckSquare className="w-6 h-6 text-white" />
@@ -113,7 +128,6 @@ export function Dashboard() {
 						</span>
 					</div>
 
-					{/* Ações do Usuário */}
 					<button
 						onClick={handleLogout}
 						className="flex items-center gap-2 text-gray-500 hover:text-red-600 transition-colors px-4 py-2 rounded-lg hover:bg-red-50"
@@ -123,12 +137,10 @@ export function Dashboard() {
 					</button>
 				</header>
 				
-				{/* Cabeçalho da Página (Conteúdo) */}
 				<div className="mb-6">
 					<h1 className="text-2xl font-bold text-gray-800">Minhas Tarefas</h1>
 				</div>
 
-				{/* Alerta de Erro Global */}
 				{erroGlobal && (
 					<div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-lg">
 						{erroGlobal}
@@ -180,37 +192,66 @@ export function Dashboard() {
 									key={todo.id}
 									className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group"
 								>
-									<div 
-										className="flex items-center gap-4 flex-1 cursor-pointer"
-										onClick={() => handleAlternarStatus(todo.id, todo.concluida)}
-									>
-										{todo.concluida ? (
-											<CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
-										) : (
-											<Circle className="w-6 h-6 text-gray-300 group-hover:text-blue-500 transition-colors flex-shrink-0" />
-										)}
+									<div className="flex items-center gap-4 flex-1">
+										<div 
+											className="cursor-pointer"
+											onClick={() => handleAlternarStatus(todo.id, todo.concluida)}
+										>
+											{todo.concluida ? (
+												<CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
+											) : (
+												<Circle className="w-6 h-6 text-gray-300 group-hover:text-blue-500 transition-colors flex-shrink-0" />
+											)}
+										</div>
 										
-										{/* Agrupamento do Título e da Data em Coluna */}
-										<div className="flex flex-col">
-											<span className={`text-lg transition-all ${todo.concluida ? "text-gray-400 line-through" : "text-gray-700"}`}>
-												{todo.titulo}
-											</span>
-											
-											{todo.dataCriacao && (
-												<span className="text-xs text-gray-400 mt-0.5">
-													Criado em: {formatarData(todo.dataCriacao)}
-												</span>
+										<div className="flex flex-col flex-1">
+											{editandoId === todo.id ? (
+												<input
+													autoFocus
+													type="text"
+													value={valorEdicao}
+													onChange={(e) => setValorEdicao(e.target.value)}
+													onBlur={() => handleSalvarEdicao(todo.id)}
+													onKeyDown={(e) => e.key === "Enter" && handleSalvarEdicao(todo.id)}
+													className="border-b-2 border-blue-500 outline-none text-lg text-gray-700 bg-transparent py-1 w-full"
+												/>
+											) : (
+												<>
+													<span className={`text-lg transition-all ${todo.concluida ? "text-gray-400 line-through" : "text-gray-700"}`}>
+														{todo.titulo}
+													</span>
+													{todo.dataCriacao && (
+														<span className="text-xs text-gray-400 mt-0.5">
+															Criado em: {formatarData(todo.dataCriacao)}
+														</span>
+													)}
+												</>
 											)}
 										</div>
 									</div>
 
-									<button
-										onClick={() => handleDeletarTarefa(todo.id)}
-										className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-										title="Excluir tarefa"
-									>
-										<Trash2 className="w-5 h-5" />
-									</button>
+									<div className="flex items-center gap-1">
+										{!todo.concluida && editandoId !== todo.id && (
+											<button
+												onClick={() => {
+													setEditandoId(todo.id);
+													setValorEdicao(todo.titulo);
+												}}
+												className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all"
+												title="Editar tarefa"
+											>
+												<Pencil className="w-4 h-4" />
+											</button>
+										)}
+
+										<button
+											onClick={() => handleDeletarTarefa(todo.id)}
+											className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+											title="Excluir tarefa"
+										>
+											<Trash2 className="w-5 h-5" />
+										</button>
+									</div>
 								</li>
 							))}
 						</ul>
