@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, UserPlus, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { Mail, Lock, UserPlus, AlertCircle, CheckCircle2, Loader2, CheckSquare } from "lucide-react";
 import { api } from "../services/api";
 
 export function Register() {
@@ -81,7 +81,17 @@ export function Register() {
 	};
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+		<div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+
+			<div className="mb-8 flex items-center gap-3">
+				<div className="bg-blue-600 p-2 rounded-xl shadow-sm border border-blue-500/20">
+					<CheckSquare className="w-7 h-7 text-white" />
+				</div>
+				<span className="text-3xl font-extrabold text-gray-900 tracking-tight">
+					Todo List
+				</span>
+			</div>
+
 			<div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
 				
 				<div className="text-center mb-8">

@@ -1,7 +1,7 @@
 // src/pages/Dashboard.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Plus, Trash2, CheckCircle2, Circle, Loader2 } from "lucide-react";
+import { LogOut, Plus, Trash2, CheckCircle2, Circle, Loader2, CheckSquare } from "lucide-react";
 import { api } from "../services/api";
 
 interface Todo {
@@ -98,13 +98,22 @@ export function Dashboard() {
 
 	return (
 		<div className="min-h-screen bg-gray-50 py-10 px-4">
+
 			<div className="max-w-3xl mx-auto">
-				
-				<header className="flex justify-between items-center mb-8">
-					<div>
-						<h1 className="text-3xl font-bold text-gray-800">Minhas Tarefas</h1>
-						<p className="text-gray-500 mt-1">Organize seu dia com foco.</p>
+
+				{/* Cabeçalho Global (Navegação superior) */}
+				<header className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200">
+					{/* Marca / Logo */}
+					<div className="flex items-center gap-3">
+						<div className="bg-blue-600 p-2 rounded-xl shadow-sm border border-blue-500/20">
+							<CheckSquare className="w-6 h-6 text-white" />
+						</div>
+						<span className="text-2xl font-extrabold text-gray-900 tracking-tight">
+							Todo List
+						</span>
 					</div>
+
+					{/* Ações do Usuário */}
 					<button
 						onClick={handleLogout}
 						className="flex items-center gap-2 text-gray-500 hover:text-red-600 transition-colors px-4 py-2 rounded-lg hover:bg-red-50"
@@ -113,6 +122,11 @@ export function Dashboard() {
 						<span className="font-medium">Sair</span>
 					</button>
 				</header>
+				
+				{/* Cabeçalho da Página (Conteúdo) */}
+				<div className="mb-6">
+					<h1 className="text-2xl font-bold text-gray-800">Minhas Tarefas</h1>
+				</div>
 
 				{/* Alerta de Erro Global */}
 				{erroGlobal && (
@@ -121,7 +135,7 @@ export function Dashboard() {
 					</div>
 				)}
 
-				<form onSubmit={handleCriarTarefa} className="flex gap-3 mb-8">
+				<form onSubmit={handleCriarTarefa} className="flex flex-col sm:flex-row gap-3 mb-8">
 					<input
 						type="text"
 						value={novoTitulo}
@@ -133,7 +147,7 @@ export function Dashboard() {
 					<button
 						type="submit"
 						disabled={!novoTitulo.trim() || isSubmitting}
-						className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm min-w-[140px] justify-center"
+						className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm w-full sm:w-auto sm:min-w-[140px] justify-center"
 					>
 						{isSubmitting ? (
 							<Loader2 className="w-5 h-5 animate-spin" />
