@@ -12,11 +12,17 @@ dotenv.config();
 const app = express();
 
 // Permite o uso de CORS e o parsing de JSON nas requisições
-app.use(cors({
-  origin: process.env.FRONTEND_URL || "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+// Libera o cors vindo de qualquer origem para o teste
+app.use(cors());
+
+// Tendo um dominio/ip fixo e/ou conhecido deve se limitar a origens conhecidas como no exemplo abaixo
+// app.use(cors({
+//   origin: process.env.FRONTEND_URL || "*",
+//   methods: ["GET", "POST", "PUT", "DELETE"],
+//   allowedHeaders: ["Content-Type", "Authorization"]
+// }));
+
+
 app.use(express.json());
 
 app.use("/api/auth", authRoutes); // Define as rotas de autenticação
