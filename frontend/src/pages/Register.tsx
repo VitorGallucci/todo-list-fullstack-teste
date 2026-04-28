@@ -161,7 +161,7 @@ export function Register() {
 					<div>
 						<label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Senha</label>
 						
-						{/* Container Relative isolado APENAS para o Input e o Ícone */}
+						{/* Container Relative isolado para o Input e o Ícone */}
 						<div className="relative">
 							<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
 								<Lock className="h-5 w-5 text-gray-400" />
@@ -177,7 +177,6 @@ export function Register() {
 							/>
 						</div>
 
-						{/* O Feedback visual agora fica fora do container 'relative' para não quebrar o alinhamento */}
 						{confirmarSenha.length > 0 && (
 							<p className={`text-sm mt-2 flex items-center gap-1 transition-colors ${senha === confirmarSenha ? 'text-green-600' : 'text-red-500'}`}>
 								{senha === confirmarSenha ? (
