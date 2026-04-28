@@ -19,7 +19,7 @@ A aplicação está hospedada e pronta para uso.
 
 O app foi configurado para rodar via Docker seguindo os passos abaixo.
 
-1. Clone o repositório e navegue ao diretório padrão:
+1. Clone o repositório e navegue ao diretório padrão (renomeie os arquivos .env.example para .env):
    ```bash
    git clone https://github.com/VitorGallucci/todo-list-fullstack-teste
    cd todo-list-fullstack-teste
