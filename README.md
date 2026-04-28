@@ -15,6 +15,28 @@ A aplicação está hospedada e pronta para uso.
 
 ---
 
+## 🐳 Como rodar a aplicação via Docker
+
+O app foi configurado para rodar via Docker seguindo os passos abaixo.
+
+1. Clone o repositório e navegue ao diretório padrão:
+   ```bash
+   git clone https://github.com/VitorGallucci/todo-list-fullstack-teste
+   cd todo-list-fullstack-teste
+
+2. Suba os containers com o Docker Compose:
+   ```bash
+   docker-compose up --build -d
+   ```
+
+3. Acesse a aplicação no seu navegador:
+   * **Frontend:** `http://localhost` (O Nginx cuidará do roteamento na porta padrão 80)
+   * **Backend:** A API estará rodando internamente e exposta na porta mapeada no `docker-compose.yml`.
+
+> **Nota:** Para encerrar a aplicação, execute `docker-compose down` no terminal.
+
+---
+
 ## 🛠️ Tecnologias Utilizadas
 
 **Frontend:**
@@ -76,28 +98,6 @@ O frontend foi construído como uma aplicação React (Single Page Application) 
 * **Isolamento de Dados:** Um usuário só possui acesso, edição e visualização das tarefas que ele mesmo criou (validado via extração do `usuarioId` do token JWT).
 * **Regra de Edição de Tarefas:** Como regra de negócio, a API e o Frontend bloqueiam a edição do título de tarefas que já estão com o status `concluida: true`.
 * **Exclusão Segura:** Rotas de deleção verificam não apenas a existência da tarefa, mas também se ela pertence ao usuário autenticado que disparou a requisição.
-
----
-
-## 🐳 Como rodar a aplicação via Docker
-
-O app foi configurado para rodar via Docker seguindo os passos abaixo.
-
-1. Clone o repositório e navegue ao diretório padrão:
-   ```bash
-   git clone https://github.com/VitorGallucci/todo-list-fullstack-teste
-   cd todo-list-fullstack-teste
-
-2. Suba os containers com o Docker Compose:
-   ```bash
-   docker-compose up --build -d
-   ```
-
-3. Acesse a aplicação no seu navegador:
-   * **Frontend:** `http://localhost` (O Nginx cuidará do roteamento na porta padrão 80)
-   * **Backend:** A API estará rodando internamente e exposta na porta mapeada no `docker-compose.yml`.
-
-> **Nota:** Para encerrar a aplicação, execute `docker-compose down` no terminal.
 
 ---
 
