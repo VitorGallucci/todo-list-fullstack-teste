@@ -19,17 +19,24 @@ A aplicação está hospedada e pronta para uso.
 
 O app foi configurado para rodar via Docker seguindo os passos abaixo.
 
-1. Clone o repositório e navegue ao diretório padrão (renomeie os arquivos .env.example das pasta frontend e backend para .env):
+1. Clone o repositório e navegue ao diretório padrão ():
    ```bash
    git clone https://github.com/VitorGallucci/todo-list-fullstack-teste
    cd todo-list-fullstack-teste
+   ```
 
-2. Suba os containers com o Docker Compose:
+2. Crie os arquivos .env copiando os arquivos de exemplo (.env.example) do frontend e do backend:
+   ```bash
+   cp frontend/.env.example frontend/.env
+   cp backend/.env.example backend/.env
+   ```
+
+3. Suba os containers com o Docker Compose:
    ```bash
    docker-compose up --build -d
    ```
 
-3. Acesse a aplicação no seu navegador:
+4. Acesse a aplicação no seu navegador:
    * **Frontend:** `http://localhost` (O Nginx cuidará do roteamento na porta padrão 80)
    * **Backend:** A API estará rodando internamente e exposta na porta mapeada no `docker-compose.yml`.
 
