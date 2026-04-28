@@ -58,7 +58,7 @@ O frontend foi construído como uma aplicação React (Single Page Application) 
 * **`src/App.tsx`**: É o controlador de rotas, que define qual página será exibida de acordo com a URL acessada.
 * **`src/main.tsx`**: É o arquivo inicial que "monta" e roda a aplicação React no navegador.
 
-### 🧠 Decisões Arquiteturais e Técnicas
+## 🧠 Decisões Arquiteturais e Técnicas
 
 1. **Padronização de IDs no Mongoose:** Uso de transformação virtual (`toJSON`) nos Schemas para converter o `_id` nativo do MongoDB para `id`, atendendo estritamente ao contrato de dados exigido.
 2. **Gestão de Datas (UTC e Local):** O backend armazena a `dataCriacao` com fuso horário neutro (UTC). A responsabilidade de formatar a data para o timezone local (pt-BR) foi delegada exclusivamente ao Frontend.
@@ -79,13 +79,13 @@ O frontend foi construído como uma aplicação React (Single Page Application) 
 
 ---
 
-## 🐳 Como rodar a aplicação via Docker (Recomendado)
+## 🐳 Como rodar a aplicação via Docker
 
-O app foi configurado para rodar via container com Docker seguindo os passos abaixo.
+O app foi configurado para rodar via Docker seguindo os passos abaixo.
 
 1. Clone o repositório e navegue ao diretório padrão:
    ```bash
-   git clone [https://github.com/VitorGallucci/todo-list-fullstack-teste](https://github.com/VitorGallucci/todo-list-fullstack-teste)
+   git clone https://github.com/VitorGallucci/todo-list-fullstack-teste
    cd todo-list-fullstack-teste
 
 2. Suba os containers com o Docker Compose:
@@ -118,7 +118,7 @@ Os testes automatizados foram construídos com Jest no backend para validar as r
 3. Configure as variáveis de ambiente:
    Renomeie o arquivo `.env.example` para `.env`.
    
-   > **Nota:** O arquivo `.env.example` já possui uma connection string de um cluster de testes do MongoDB e um JWT Secret configurados. Não é necessário alterar nenhum dado para realizar a avaliação.
+   > **Nota:** O arquivo `.env.example` já possui uma connection string de um cluster de testes do MongoDB e um JWT Secret configurados para facilidade de testes. Não é necessário alterar nenhum dado para realizar a avaliação.
 
 4. Execute os testes:
    ```bash
